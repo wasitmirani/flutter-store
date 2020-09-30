@@ -1,4 +1,4 @@
-# blog_app
+# Flutter Store  App
 
 A new Flutter project.
 
