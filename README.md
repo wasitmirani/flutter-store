@@ -1,4 +1,4 @@
-# Flutter Store  App
+# Flutter Store App
 
 A new Flutter project.
 

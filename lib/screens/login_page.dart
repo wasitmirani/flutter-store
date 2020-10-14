@@ -1,20 +1,53 @@
+import 'package:blog_app/data/User.dart';
+import 'package:blog_app/model/login.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'dart:convert';
+import 'package:blog_app/data/User.dart';
+import 'package:http/http.dart' as http;
 import '../Animation/FadeAnimation.dart';
 import 'package:flutter/material.dart';
 
-class Loginscreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  // var _base = "http://6f024a03defc.ngrok.io/api";
+  // var _tokenEndpoint = "/user/login";
+  var _tokenURL = "http://6f024a03defc.ngrok.io/api/user/login";
+
+  Future<Token> getToken(UserLogin userLogin) async {
+    print(_tokenURL);
+    print("users=" + jsonEncode(userLogin));
+    final http.Response response = await http.post(
+      _tokenURL,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(userLogin.toDatabaseJson()),
+    );
+    print(userLogin.toDatabaseJson());
+    if (response.statusCode == 200) {
+      print(response.body);
+      return Token.fromJson(json.decode(response.body));
+    } else {
+      print(json.decode(response.body).toString());
+      throw Exception(json.decode(response.body));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    var linearGradient = LinearGradient(
+        begin: Alignment.topCenter,
+        colors: [Colors.blue[900], Colors.blue[800], Colors.blue[400]]);
+    final email = TextEditingController();
+    final password = TextEditingController();
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
-            gradient: LinearGradient(begin: Alignment.topCenter, colors: [
-          Colors.blue[900],
-          Colors.blue[800],
-          Colors.blue[400]
-        ])),
+        decoration: BoxDecoration(gradient: linearGradient),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -81,6 +114,7 @@ class Loginscreen extends StatelessWidget {
                                             bottom: BorderSide(
                                                 color: Colors.grey[200]))),
                                     child: TextField(
+                                      controller: email,
                                       decoration: InputDecoration(
                                           hintText: "Email or Phone number",
                                           hintStyle:
@@ -95,6 +129,7 @@ class Loginscreen extends StatelessWidget {
                                             bottom: BorderSide(
                                                 color: Colors.grey[200]))),
                                     child: TextField(
+                                      controller: password,
                                       decoration: InputDecoration(
                                           hintText: "Password",
                                           hintStyle:
@@ -128,7 +163,8 @@ class Loginscreen extends StatelessWidget {
                           1.6,
                           FlatButton(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/home');
+                              getToken(UserLogin(
+                                  email: email.text, password: password.text));
                             },
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
